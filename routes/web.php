@@ -1,19 +1,19 @@
+
 <?php
- 
+
 use Illuminate\Support\Facades\Route;
- 
+
 Route::get('/', function () {
     return view('home');
 })->name('home');
-// Страница "О проекте"
+
 Route::get('/about', function () {
     return view('about', [
-        'fio' => 'Иванов Иван Иванович', // Укажите ваши ФИО
-        'group' => 'ИС-21'               // Укажите вашу группу
+        'fio' => 'Иванов Иван Иванович',
+        'group' => 'ИС-21'
     ]);
 })->name('about');
 
-// Страница "Контакты"
 Route::get('/contacts', function () {
     return view('contacts', [
         'address' => 'г. Костанай, ул. Байтурсынова, 47',
@@ -22,12 +22,48 @@ Route::get('/contacts', function () {
     ]);
 })->name('contacts');
 
-// Приветствие по имени (без отдельного файла шаблона, возвращает строку)
 Route::get('/hello/{name}', function ($name) {
     return "Здравствуйте, {$name}! Добро пожаловать в Барбершоп.";
-});
+})->name('hello');
 
-// Страница услуги по ID (только цифры)
-Route::get('/services/{id}', function (string $id) {
-    return view('service', ['id' => $id]);
+Route::get('/services', function () {
+    $items = config('catalog.items');
+
+    return view('services.index', compact('items'));
+})->name('services.index');
+
+Route::get('/services/{id}', function (int $id) {
+    $item = config("catalog.items.$id");
+
+    if (!$item) {
+        abort(404);
+    }
+
+    return view('services.show', [
+        'id' => $id,
+        'item' => $item,
+    ]);
 })->whereNumber('id')->name('services.show');
+
+Route::view('/rules', 'rules')->name('rules');
+
+Route::redirect('/main', '/');
+
+Route::prefix('admin')
+    ->name('admin.')
+    ->middleware(['visit', 'working.hours', 'admin.key'])
+    ->group(function () {
+        Route::get('/', function () {
+            return view('admin.dashboard');
+        })->name('dashboard');
+
+        Route::get('/services', function () {
+            $items = config('catalog.items');
+
+            return view('admin.services', compact('items'));
+        })->name('services');
+
+        Route::get('/services/create', function () {
+            return view('admin.services-create');
+        })->name('services.create');
+    });
