@@ -1,13 +1,9 @@
+@extends('layouts.app')
 
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Доступ запрещён</title>
-</head>
-<body>
-    <h1>403 — Доступ запрещён</h1>
-    <p>У вас недостаточно прав для просмотра этой страницы.</p>
-    <a href="/">Вернуться на главную</a>
-</body>
-</html>
+@section('title', 'Доступ запрещён')
+
+@section('content')
+    <h1>403</h1>
+    <p>{{ $exception->getMessage() ?: 'Нужен ключ администратора' }}</p>
+    <p><a href="{{ route('home') }}">Вернуться на главную</a></p>
+@endsection

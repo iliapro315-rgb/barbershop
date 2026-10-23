@@ -1,17 +1,13 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>О проекте - {{ config('app.name') }}</title>
-</head>
-<body>
-    <nav>
-        <a href="{{ route('home') }}">Главная</a> | 
-        <a href="{{ route('about') }}">О проекте</a> | 
-        <a href="{{ route('contacts') }}">Контакты</a>
-    </nav>
-    <h1>О проекте «Барбершоп»</h1>
-    <p>Студент: {{ $fio }} (группа {{ $group }})</p>
-    <p>Наш барбершоп — это современное пространство для стильных мужчин. Мы предлагаем премиальный уход, классические стрижки и профессиональное бритье.</p>
-</body>
-</html>
+@extends('layouts.app')
+
+@section('title', 'О проекте')
+
+@section('content')
+    <h1>О проекте</h1>
+    <p><strong>ФИО:</strong> {{ $fio }}</p>
+    <p><strong>Группа:</strong> {{ $group }}</p>
+    <p>
+        Учебный проект «Барбершоп» — каталог услуг и мастеров.
+        Здесь можно посмотреть список услуг, карточки и записаться к мастеру.
+    </p>
+@endsection

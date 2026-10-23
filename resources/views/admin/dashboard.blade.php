@@ -1,16 +1,12 @@
+@extends('layouts.admin')
 
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Админ-панель</title>
-</head>
-<body>
-    <h1>Админ-панель барбершопа</h1>
-    <p>Добро пожаловать в панель управления.</p>
+@section('title', 'Панель администратора')
 
-    <a href="{{ route('admin.services') }}">Управление услугами</a>
-    <br>
-    <a href="/">На главную</a>
-</body>
-</html>
+@section('content')
+    <h1>Панель администратора</h1>
+    <p>Добро пожаловать в админ-раздел барбершопа.</p>
+    <ul>
+        <li><a href="{{ route('admin.services.index') }}">Список услуг</a></li>
+        <li><a href="{{ route('admin.services.create') }}">Добавить услугу</a></li>
+    </ul>
+@endsection

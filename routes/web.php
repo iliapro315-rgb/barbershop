@@ -1,69 +1,41 @@
 
 <?php
 
+use App\Http\Controllers\PageController;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ServiceController as AdminServiceController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('home');
-})->name('home');
+Route::get('/', [PageController::class, 'home'])->name('home');
+Route::get('/about', [PageController::class, 'about'])->name('about');
+Route::get('/contacts', [PageController::class, 'contacts'])->name('contacts');
+Route::get('/rules', [PageController::class, 'rules'])->name('rules');
 
-Route::get('/about', function () {
-    return view('about', [
-        'fio' => 'Иванов Иван Иванович',
-        'group' => 'ИС-21'
-    ]);
-})->name('about');
+Route::get('/services', [ServiceController::class, 'index'])
+    ->name('services.index');
 
-Route::get('/contacts', function () {
-    return view('contacts', [
-        'address' => 'г. Костанай, ул. Байтурсынова, 47',
-        'phone' => '+7 (7142) 00-00-00',
-        'email' => 'barbershop@example.com'
-    ]);
-})->name('contacts');
+Route::get('/services/{id}', [ServiceController::class, 'show'])
+    ->whereNumber('id')
+    ->name('services.show');
 
-Route::get('/hello/{name}', function ($name) {
+Route::get('/hello/{name}', function (string $name) {
     return "Здравствуйте, {$name}! Добро пожаловать в Барбершоп.";
-})->name('hello');
-
-Route::get('/services', function () {
-    $items = config('catalog.items');
-
-    return view('services.index', compact('items'));
-})->name('services.index');
-
-Route::get('/services/{id}', function (int $id) {
-    $item = config("catalog.items.$id");
-
-    if (!$item) {
-        abort(404);
-    }
-
-    return view('services.show', [
-        'id' => $id,
-        'item' => $item,
-    ]);
-})->whereNumber('id')->name('services.show');
-
-Route::view('/rules', 'rules')->name('rules');
+});
 
 Route::redirect('/main', '/');
 
 Route::prefix('admin')
     ->name('admin.')
-    ->middleware(['visit', 'working.hours', 'admin.key'])
+    ->middleware('admin.key')
     ->group(function () {
-        Route::get('/', function () {
-            return view('admin.dashboard');
-        })->name('dashboard');
+        Route::get('/', \App\Http\Controllers\Admin\DashboardController::class)->name('dashboard');
 
-        Route::get('/services', function () {
-            $items = config('catalog.items');
+        Route::resource('services', \App\Http\Controllers\Admin\ServiceController::class)
+            ->except(['show']);
 
-            return view('admin.services', compact('items'));
-        })->name('services');
-
-        Route::get('/services/create', function () {
-            return view('admin.services-create');
-        })->name('services.create');
+        Route::get('/logout', function () {
+            session()->forget('is_admin');
+            return redirect('/');
+        })->name('logout');
     });

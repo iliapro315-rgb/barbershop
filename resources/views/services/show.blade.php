@@ -1,17 +1,19 @@
 
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ $item['title'] }}</title>
-</head>
-<body>
+@extends('layouts.app')
+
+@section('title', $item['title'])
+
+@section('content')
     <h1>{{ $item['title'] }}</h1>
 
-    <p>{{ $item['description'] }}</p>
-    <p>Цена: {{ $item['price'] }} ₸</p>
-    <p>Длительность: {{ $item['duration'] }} минут</p>
+    @if (!empty($item['description']))
+        <p>{{ $item['description'] }}</p>
+    @endif
 
-    <a href="{{ route('services.index') }}">Назад к услугам</a>
-</body>
-</html>
+    <p><strong>Цена:</strong> {{ $item['price'] }} ₸</p>
+    <p><strong>Длительность:</strong> {{ $item['duration'] }} мин</p>
+
+    <p>
+        <a href="{{ route('services.index') }}">← Назад к списку</a>
+    </p>
+@endsection
