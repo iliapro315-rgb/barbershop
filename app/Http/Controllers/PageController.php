@@ -21,15 +21,13 @@ class PageController extends Controller
         return view('home', $data);
     }
 
-    public function about()
-    {
-        return view('about', [
-            'author' => 'Иванов Иван Иванович',
-            'group'  => 'ПО-31',
-        ]);
-    }
-
-    public function contacts()
+   public function about()
+{
+    return view('about', [
+        'fio'   => 'Иванов Иван Иванович',
+        'group' => 'ПО-31',
+    ]);
+} function contacts()
     {
         return view('contacts', [
             'phone'   => '+7 (777) 123-45-67',

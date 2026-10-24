@@ -2,24 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Service;
+use Illuminate\Http\Request;
+
 class ServiceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $items = config('catalog.items');
+        $search = $request->input('q');
 
-        return view('services.index', compact('items'));
+        $services = Service::query()
+            ->with('master')
+            ->when($search, function ($query, $search) {
+                $query->where('title', 'like', "%{$search}%")
+                      ->orWhere('description', 'like', "%{$search}%");
+            })
+            ->latest()
+            ->paginate(6)
+            ->withQueryString();
+
+        return view('services.index', compact('services'));
     }
 
-    public function show(int $id)
+    public function show(Service $service)
     {
-        $item = config("catalog.items.$id");
-
-        abort_if(!$item, 404);
-
-        return view('services.show', [
-            'id' => $id,
-            'item' => $item,
-        ]);
+        $service->load('master');
+        return view('services.show', compact('service'));
     }
 }
