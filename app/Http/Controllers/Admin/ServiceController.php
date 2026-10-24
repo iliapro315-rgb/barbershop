@@ -3,62 +3,63 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreServiceRequest;
-use App\Http\Requests\UpdateServiceRequest;
-use App\Models\Master;
 use App\Models\Service;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
+use Illuminate\Http\Request;
 
 class ServiceController extends Controller
 {
-    public function index(): View
+    public function index()
     {
-        $items = Service::with('master')
-            ->orderBy('id')
-            ->paginate(10);
-
-        return view('admin.services.index', compact('items'));
+        $this->authorize('viewAny', Service::class);
+        $services = Service::all();
+        return view('admin.services.index', compact('services'));
     }
 
-    public function create(): View
+    public function create()
     {
-        $masters = Master::orderBy('name')->get();
-
-        return view('admin.services.create', compact('masters'));
+        $this->authorize('create', Service::class);
+        return view('admin.services.create');
     }
 
-    public function store(StoreServiceRequest $request): RedirectResponse
+    public function store(Request $request)
     {
-        Service::create($request->validated());
+        $this->authorize('create', Service::class);
+        
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'price' => 'required|numeric',
+        ]);
 
-        return redirect()
-            ->route('admin.services.index')
-            ->with('success', 'Услуга добавлена');
+        Service::create($validated);
+
+        return redirect()->route('admin.services.index');
     }
 
-    public function edit(Service $service): View
+    public function edit(Service $service)
     {
-        $masters = Master::orderBy('name')->get();
-
-        return view('admin.services.edit', compact('service', 'masters'));
+        $this->authorize('update', $service);
+        return view('admin.services.edit', compact('service'));
     }
 
-    public function update(UpdateServiceRequest $request, Service $service): RedirectResponse
+    public function update(Request $request, Service $service)
     {
-        $service->update($request->validated());
+        $this->authorize('update', $service);
 
-        return redirect()
-            ->route('admin.services.index')
-            ->with('success', 'Услуга обновлена');
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'price' => 'required|numeric',
+        ]);
+
+        $service->update($validated);
+
+        return redirect()->route('admin.services.index');
     }
 
-    public function destroy(Service $service): RedirectResponse
+    public function destroy(Service $service)
     {
+        $this->authorize('delete', $service);
         $service->delete();
 
-        return redirect()
-            ->route('admin.services.index')
-            ->with('success', 'Услуга удалена');
+        return redirect()->route('admin.services.index');
     }
 }

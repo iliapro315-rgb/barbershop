@@ -4,46 +4,36 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Builder;
 
 class Service extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'title',
-        'description',
-        'price',
-        'duration',
-        'master_id',
-        'is_available',
-        'cover',
-    ];
+    protected $fillable = ['master_id', 'title', 'description', 'price', 'duration_minutes', 'is_active', 'image'];
 
-    protected $casts = [
-        'is_available' => 'boolean',
-    ];
-
-    public function master()
+    public function master(): BelongsTo
     {
         return $this->belongsTo(Master::class);
     }
 
-    // Поиск
-    public function scopeSearch($query, ?string $term)
+    public function bookings(): HasMany
     {
-        if (! $term) {
-            return $query;
-        }
+        return $this->hasMany(Booking::class);
+    }
 
-        return $query->where(function ($q) use ($term) {
-            $q->where('title', 'like', "%{$term}%")
-              ->orWhere('description', 'like', "%{$term}%");
+    public function scopeSearch(Builder $query, ?string $q): Builder
+    {
+        return $query->when($q, function ($query, $q) {
+            $query->where('title', 'like', "%{$q}%")
+                  ->orWhere('description', 'like', "%{$q}%");
         });
     }
 
-    // Только доступные
-    public function scopeAvailable($query)
+    public function getImageUrlAttribute(): string
     {
-        return $query->where('is_available', true);
+        return $this->image ? asset('storage/' . $this->image) : asset('images/default-service.jpg');
     }
 }

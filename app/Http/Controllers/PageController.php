@@ -2,34 +2,39 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Service;
+use App\Models\Master;
+use Illuminate\Support\Facades\Cache;
+
 class PageController extends Controller
 {
     public function home()
     {
-        return view('home', [
-            'appName' => config('app.name'),
-        ]);
+        $data = Cache::remember('home.stats', now()->addMinutes(10), function () {
+            return [
+                'totalServices' => Service::count(),
+                'totalMasters'  => Master::count(),
+                'latestServices' => Service::with('master')->latest()->take(6)->get(),
+            ];
+        });
+
+        return view('home', $data);
     }
 
     public function about()
     {
         return view('about', [
-            'fio'   => 'Ляхов Илья Павлович',   // ← свои ФИО
-            'group' => 'ПОВТ-24Б',                  // ← свою группу
+            'author' => 'Иванов Иван Иванович',
+            'group'  => 'ПО-31',
         ]);
     }
 
     public function contacts()
     {
         return view('contacts', [
-            'address' => 'г. Алматы, ул. Абая 150',
-            'phone'   => '+7 (727) 123-45-67',
+            'phone'   => '+7 (777) 123-45-67',
+            'address' => 'г. Костанай, ул. Абая, 50',
             'email'   => 'info@barbershop.kz',
         ]);
-    }
-
-    public function rules()
-    {
-        return view('rules');
     }
 }
